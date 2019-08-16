@@ -46,7 +46,29 @@ struct Scope : Module {
 	bool lissajous = false;
 	bool external = false;
 	dsp::SchmittTrigger triggers[16];
+	
+	struct tpLightStateONOFF : ParamQuantity {
+		std::string getDisplayValueString() override {
+			if (module->lights[LISSAJOUS_LIGHT].value == 1) {
+				return "On";
+			} else {
+				return "Off";
+			}
+		}
+	};
 
+	struct tpMode : ParamQuantity {
+		std::string getDisplayValueString() override {
+			if (module->lights[INTERNAL_LIGHT].value == 1) {
+				return "Internal";
+			} 
+			else {
+				return "External";
+			}
+			
+		}
+	};
+	
 	Scope() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(X_SCALE_PARAM, -2.f, 8.f, 0.f, "X scale", " V/div", 1/2.f, 5);
@@ -55,9 +77,9 @@ struct Scope : Module {
 		configParam(Y_POS_PARAM, -10.f, 10.f, 0.f, "Y position", " V");
 		const float timeBase = (float) BUFFER_SIZE / 6;
 		configParam(TIME_PARAM, 6.f, 16.f, 14.f, "Time", " ms/div", 1/2.f, 1000 * timeBase);
-		configParam(LISSAJOUS_PARAM, 0.f, 1.f, 0.f);
+		configParam<tptpLightStateONOFF>(LISSAJOUS_PARAM, 0.f, 1.f, 0.f, "Lissajous");
 		configParam(TRIG_PARAM, -10.f, 10.f, 0.f, "Trigger position", " V");
-		configParam(EXTERNAL_PARAM, 0.f, 1.f, 0.f);
+		configParam<tpMode>(EXTERNAL_PARAM, 0.f, 1.f, 0.f);
 	}
 
 	void onReset() override {
